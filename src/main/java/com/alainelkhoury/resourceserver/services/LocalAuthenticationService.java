@@ -32,7 +32,7 @@ public class LocalAuthenticationService implements AuthenticationService {
                         .build())
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, response -> {
-                    throw new OAuth2IntrospectionException("Unauthorized");
+                    throw new OAuth2IntrospectionException("Unauthorized! possible invalid token");
                 })
                 .onStatus(HttpStatus::is5xxServerError, response -> {
                     throw new OAuth2IntrospectionException("Unauthorized");

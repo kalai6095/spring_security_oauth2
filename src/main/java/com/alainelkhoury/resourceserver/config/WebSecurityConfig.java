@@ -18,6 +18,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                             .anyRequest()
                             .authenticated();
                 })
-                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::opaqueToken);
+                //.oauth2ResourceServer(OAuth2ResourceServerConfigurer::opaqueToken)
+                .oauth2ResourceServer(oauth2-> oauth2.opaqueToken().withObjectPostProcessor(getObjectPostProcessor()));
+    }
+    
+    private ObjectPostProcessor<BearerTokenAuthenticationFilter> getObjectPostProcessor() {
+        return new ObjectPostProcessor<BearerTokenAuthenticationFilter>() {
+            @Override
+            public <O extends BearerTokenAuthenticationFilter> O postProcess(O filter) {
+                filter.setAuthenticationFailureHandler((request, response, exception) -> {
+                    System.out.println("Authentication failed (and is being handled in a custom way)");
+                    BearerTokenAuthenticationEntryPoint delegate = new BearerTokenAuthenticationEntryPoint();
+                    delegate.commence(request, response, exception);
+                });
+                return filter;
+            }
+        };
     }
 }
